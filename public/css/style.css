@@ -1,0 +1,30 @@
+.none{
+    display: none;
+}
+#boxDraw{
+    width: 800px;
+    height: 600px;
+    border: 2px solid #000;
+}
+#chat{
+    background-color: aquamarine;
+}
+
+.card{
+    border: 2px solid #000;
+    border-radius: 10px;
+    background-color: aliceblue;
+    width: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.card img{
+    width: 100px;
+    border-radius: 10px;
+    margin-top: 5px;
+}
+.card p, .card h3{
+    text-align: center;
+}

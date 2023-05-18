@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+
+    <title>Gartic</title>
+</head>
+<body onload="carregaUser()">
+
+    <header>
+        <input type="text" id="headerPalavra">
+        <input type="text" id="meuId">
+    </header>
+
+    <main>
+        <div class="superior">
+            <div id="boxDraw"></div>
+            
+            <hr>
+            
+            <div id="chat">
+                <ul id="mensagens"></ul>
+                
+                <form action="">
+                    <input type="text" id="nome" placeholder="Seu nome de usuário" readonly>
+                    <br><br>
+                    <input type="text" id="mensagem" placeholder="Sua mensagem">
+                    <br><br>
+                    <button>Enviar</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="inferior">
+            <div id="areaConectados"></div>
+        </div>
+
+    </main>
+
+    <script src="js/script.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        var escolhido = false
+        //CHAT
+        const socket = io();
+        const nomeInput = document.getElementById('nome');
+        const mensagemInput = document.getElementById("mensagem");
+        const mensagens = document.getElementById("mensagens");
+
+        document.querySelector("form").addEventListener('submit', evento =>{
+            event.preventDefault()
+            const nome = nomeInput.value;
+            const mensagem = mensagemInput.value;
+            const id = document.getElementById("meuId").value
+
+            id.trim() && nome.trim() && mensagem.trim() && socket.emit('chat message', {nome,mensagem,id});
+            mensagemInput.value = '';
+
+            palavra = localStorage.getItem('palavra');
+            console.log('palavra: '+ palavra)
+        })
+
+        var contador = 0
+        socket.on('chat message', dados => {
+            const lista = document.createElement('li');
+            lista.textContent = `${dados.nome}: ${dados.mensagem}`;
+            mensagens.appendChild(lista);
+            contador++
+            console.log('contador: '+contador);
+
+            const idDaTentativa = dados.id
+            palavra = localStorage.getItem('palavra');
+            if(dados.mensagem == palavra){ //a palavra esta indefinida para quem nao esta desenhando
+                const mensagemAcerto = document.createElement('div');
+                mensagemAcerto.innerHTML = `<p>${dados.nome} do id ${dados.id} Acertou!</p>
+                                            <p>Resposta: ${palavra}</p>`
+                mensagens.appendChild(mensagemAcerto);
+
+                console.log('input: '+ document.getElementById('meuId').value)
+                if(idDaTentativa == document.getElementById('meuId').value){
+                    socket.emit('start', {idDaTentativa}); ///////////
+                }
+            }
+        })
+
+
+
+        //Onload / entrada
+        var meuId
+        function carregaUser(){
+            var nome = localStorage.getItem('username');
+            document.getElementById('nome').value = nome;
+            var pontuacao = 0;
+            nome.trim() && socket.emit('entrou', {nome, pontuacao});
+            setTimeout(carregaId, 500) 
+        }
+        function carregaId(){
+            document. getElementById("meuId").value = meuId
+        }
+
+        socket.on('entrou', infoUser => {
+            const card = document.createElement('div')
+            card.classList.add("cardConexao");
+
+            card.innerHTML=`<div class="card">${fotoAleatoria()}
+                                <div class="cardNome">
+                                    <h3>${infoUser.infoUser.nome}</h3>
+                                    <p>Pontuação:</p>
+                                    <p>${infoUser.infoUser.pontuacao}</p>
+                                    <input class="socketId" value=${infoUser.id}>
+                                </div>
+                            </div>`;
+            document.getElementById('areaConectados').appendChild(card)
+            if(infoUser.aPalavra != undefined && infoUser.aPalavra != null){
+                localStorage.setItem('palavra', infoUser.aPalavra)
+            }
+            console.log(infoUser.infoUser.nome)
+            meuId = socket.id 
+        })
+
+
+        //GARTIC
+        
+       //desenho
+        boxDraw = document.getElementById('boxDraw')
+        var mouse = {};
+        boxDraw.addEventListener('mousemove', function(e){
+            mouse.x = e.clientX - boxDraw.offsetLeft;
+            mouse.y = e.clientY - boxDraw.offsetTop;
+        })
+        
+        var clique = false
+        var para = false
+
+        socket.on('desenharDesafio', posicao => {
+            var bolinha = document.createElement('img')
+                    bolinha.src = "imagens/bolinhaPreta.png"
+                    bolinha.style = `margin: ${posicao.y}px 0px 0px ${posicao.x}px;
+                                    width:10px; 
+                                    position: absolute`
+                    //`<img src="http://127.0.0.1:5500/public/gartic/imagens/bolinhaPreta.png" style= "width:10px; margin: ${mouse.y}px 0px 0px ${mouse.x}px;">`
+                    boxDraw.appendChild(bolinha)
+                    //return;
+        })
+
+        boxDraw.addEventListener('click', function(){
+            if(escolhido){
+                if(clique){
+                    clique=false
+                }else{
+                    clique = true
+                }
+                para = false
+    
+                if(clique && !para){
+                    boxDraw.addEventListener('mousemove', function(){
+                        if(clique && !para){
+    
+                        x = mouse.x
+                        y = mouse.y
+                        socket.emit('desenharDesafio', {x, y});
+                        }
+                    })
+                }else{
+                    if(!clique){
+                        para = true
+                    }
+                }
+            }
+        })
+
+
+        var palavra;
+        socket.on('start', dados => {
+            localStorage.setItem('palavra', dados.aPalavra)
+            palavra = localStorage.getItem('palavra');
+            desenhista = dados.idDoDesenhista
+            console.log("A palavra da vez é: "+ palavra);
+            console.log("O desenhista da vez é: "+ desenhista);
+            
+            
+            if(dados.primeiraPartida){
+                setTimeout(() => {
+                    console.log("Meu id é: "+ document.getElementById('meuId').value);
+                    if(document.getElementById('meuId').value == dados.idDoDesenhista){
+                        escolhido = true; 
+                    }else{
+                        escolhido = false
+                    }
+                    console.log("escolhido: "+ escolhido)
+                    recarregarHeader(escolhido, palavra);
+                }, 800);
+            }else{
+                console.log("Meu id é: "+ document.getElementById('meuId').value);
+                if(document.getElementById('meuId').value == dados.idDoDesenhista){
+                    escolhido = true; 
+                }else{
+                    escolhido = false
+                }
+                console.log("escolhido: "+ escolhido)
+                recarregarHeader(escolhido, palavra);
+            }
+        })
+
+    </script>
+</body>
+</html>

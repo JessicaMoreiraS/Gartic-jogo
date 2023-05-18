@@ -1,0 +1,31 @@
+{
+  "usuarios": [
+    {
+      "nome": "Fulana",
+      "email": "fulana@gmail.com",
+      "senha": "123",
+      "status": "frase bonita que não tenho paciencia para pesquisas",
+      "telefone": "40028922",
+      "foto": "<img src='https://cdna.artstation.com/p/assets/images/images/018/763/270/large/gabrielle-appell-original-eve-3.jpg?1560623685' class=\"configFotoPerfil\"/>",
+      "id": 987001
+    },
+    {
+      "nome": "Fulano",
+      "email": "fulano@gmail.com",
+      "senha": "321",
+      "status": "",
+      "telefone": "",
+      "foto": "<img src=\"../imagens/semFotoPerfil.jpg\" class=\"configFotoPerfil\"/>",
+      "id": 987002
+    },
+    {
+      "nome": "Jessica",
+      "email": "jessica@gmail.com",
+      "senha": "123",
+      "status": "",
+      "telefone": "",
+      "foto": "<img src=\"../imagens/semFotoPerfil.jpg\" class=\"configFotoPerfil\"/>",
+      "id": 987003
+    }
+  ]
+}
