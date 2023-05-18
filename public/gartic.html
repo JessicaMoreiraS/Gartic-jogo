@@ -97,11 +97,11 @@
             document.getElementById('nome').value = nome;
             var pontuacao = 0;
             nome.trim() && socket.emit('entrou', {nome, pontuacao});
-            setTimeout(carregaId, 500) 
+            //setTimeout(carregaId, 500) 
         }
-        function carregaId(){
+        /*function carregaId(){
             document. getElementById("meuId").value = meuId
-        }
+        }*/
 
         socket.on('entrou', infoUser => {
             const card = document.createElement('div')
@@ -121,6 +121,10 @@
             }
             console.log(infoUser.infoUser.nome)
             meuId = socket.id 
+            if(document. getElementById("meuId").value == ""){
+            document. getElementById("meuId").value = meuId
+
+            }
         })
 
 
