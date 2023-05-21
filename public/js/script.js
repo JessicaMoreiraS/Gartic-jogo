@@ -23,9 +23,15 @@ function recarregarHeader(escolhido, palavra){
     document.getElementById('boxDraw').innerHTML = "";
     if(escolhido){
         document.getElementById('headerPalavra').value = "Desenhe: "+palavra;
-    }else{
+        document.getElementById("EscolhidoFerramentas").style= "visibility: visible;";
+    }
+    if(!escolhido){
         document.getElementById('headerPalavra').value = "";
+        document.getElementById("EscolhidoFerramentas").style = "visibility: hidden;";
     }
 }
 
+function borracha(){
+    document.getElementById("inputColor").value = "#ffffff"
+}
 
