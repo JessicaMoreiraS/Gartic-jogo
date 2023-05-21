@@ -12,8 +12,34 @@
 <body onload="carregaUser()">
 
     <header>
-        <input type="text" id="headerPalavra">
-        <input type="text" id="meuId">
+        <div class="esquerdaHeader">
+            <h2>Hora do jogo!</h2>
+            <input type="text" id="nome" placeholder="Seu nome de usuário" readonly class="inputInvisivel">
+        </div>
+        <div id="EscolhidoFerramentas" class="direita">
+            <div>
+                <h3>Sua vez!</h3>
+                <input type="text" id="headerPalavra" readonly class="inputInvisivel">
+            </div>
+            <div class="ferramentas">
+                <p>Ferramentas</p>
+                <div class="containerFerramentas">
+                    <div>
+                        <label for="inputColor">Cor</label>
+                        <input type="color" id="inputColor">
+                    </div>
+                    <div>
+                        <label for="borracha">Borracha</label>
+                        <input type="image" src="imagens/borracha.png" onclick="borracha()" id="borracha">
+                    </div>
+                    <div>
+                        <label for="inputTamanho">Tamanho</label>
+                        <input type="number" id='inputTamanho' min="10" max="50" value="10">
+                    </div>
+                </div>
+            </div>
+            <input type="text" id="meuId" readonly class="none">
+        </div>
     </header>
 
     <main>
@@ -23,13 +49,10 @@
             <hr>
             
             <div id="chat">
-                <ul id="mensagens"></ul>
+                <div id="mensagens"></div>
                 
                 <form action="">
-                    <input type="text" id="nome" placeholder="Seu nome de usuário" readonly>
-                    <br><br>
                     <input type="text" id="mensagem" placeholder="Sua mensagem">
-                    <br><br>
                     <button>Enviar</button>
                 </form>
             </div>
@@ -67,11 +90,11 @@
 
         var contador = 0
         socket.on('chat message', dados => {
-            const lista = document.createElement('li');
-            lista.textContent = `${dados.nome}: ${dados.mensagem}`;
-            mensagens.appendChild(lista);
-            contador++
-            console.log('contador: '+contador);
+            const balaoMensagem = document.createElement('div');
+            balaoMensagem.classList.add = "balaoMensagem"
+            balaoMensagem.textContent = `${dados.nome}: ${dados.mensagem}`;
+            mensagens.appendChild(balaoMensagem);
+
 
             const idDaTentativa = dados.id
             palavra = localStorage.getItem('palavra');
@@ -85,6 +108,7 @@
                 if(idDaTentativa == document.getElementById('meuId').value){
                     socket.emit('start', {idDaTentativa}); ///////////
                 }
+                socket.emit('atualizaCard', {idDaTentativa});
             }
         })
 
@@ -97,33 +121,48 @@
             document.getElementById('nome').value = nome;
             var pontuacao = 0;
             nome.trim() && socket.emit('entrou', {nome, pontuacao});
-            //setTimeout(carregaId, 500) 
         }
-        /*function carregaId(){
-            document. getElementById("meuId").value = meuId
-        }*/
+        
 
         socket.on('entrou', infoUser => {
             const card = document.createElement('div')
             card.classList.add("cardConexao");
-
             card.innerHTML=`<div class="card">${fotoAleatoria()}
                                 <div class="cardNome">
                                     <h3>${infoUser.infoUser.nome}</h3>
                                     <p>Pontuação:</p>
-                                    <p>${infoUser.infoUser.pontuacao}</p>
+                                    <p class="pontuacao">${infoUser.infoUser.pontuacao}</p>
                                     <input class="socketId" value=${infoUser.id}>
                                 </div>
                             </div>`;
             document.getElementById('areaConectados').appendChild(card)
+
             if(infoUser.aPalavra != undefined && infoUser.aPalavra != null){
                 localStorage.setItem('palavra', infoUser.aPalavra)
             }
-            console.log(infoUser.infoUser.nome)
+
+            console.log(infoUser.infoUser.nome);
+
             meuId = socket.id 
             if(document. getElementById("meuId").value == ""){
-            document. getElementById("meuId").value = meuId
+                document. getElementById("meuId").value = meuId
+                //carregar cards dos usuarios anteriores
+                for(var a = 0; a<infoUser.conectados.length-1; a++){
+                    const cardAnteriores = document.createElement('div')
+                    cardAnteriores.classList.add("cardConexao");
+                    cardAnteriores.innerHTML=`<div class="card">${fotoAleatoria()}
+                                        <div class="cardNome">
+                                            <h3>${infoUser.conectados[a][1]}</h3>
+                                            <p>Pontuação:</p>
+                                            <p class="pontuacao">${infoUser.conectados[a][2]}</p>
+                                            <input class="socketId" value=${infoUser.conectados[a][0]}>
+                                        </div>
+                                    </div>`;
+                    document.getElementById('areaConectados').appendChild(cardAnteriores)
 
+                    console.log("escolhido: "+ escolhido)
+                    recarregarHeader(escolhido, palavra);
+                }
             }
         })
 
@@ -142,9 +181,17 @@
         var para = false
 
         socket.on('desenharDesafio', posicao => {
-            var bolinha = document.createElement('img')
-                    bolinha.src = "imagens/bolinhaPreta.png"
-                    bolinha.style = `margin: ${posicao.y}px 0px 0px ${posicao.x}px;
+            var bolinha = document.createElement('div')
+            bolinha.style = `margin: ${posicao.y}px 0px 0px ${posicao.x}px;
+                                    width: ${posicao.tamanho}px; 
+                                    height:${posicao.tamanho}px;
+                                    border-radius: 100px;
+                                    border-style: none;
+                                    background-color: ${posicao.color};
+                                    position: absolute;`;
+            var outraBolinha = document.createElement('img')
+            outraBolinha.src = "imagens/bolinhaPreta.png"
+            outraBolinha.style = `margin: ${posicao.y}px 0px 0px ${posicao.x}px;
                                     width:10px; 
                                     position: absolute`
                     //`<img src="http://127.0.0.1:5500/public/gartic/imagens/bolinhaPreta.png" style= "width:10px; margin: ${mouse.y}px 0px 0px ${mouse.x}px;">`
@@ -152,7 +199,31 @@
                     //return;
         })
 
-        boxDraw.addEventListener('click', function(){
+        let drag = false;
+        boxDraw.addEventListener('mousedown', function(){
+            
+            drag = true;
+            //console.log(escolhido)
+            if(escolhido && drag){
+                boxDraw.addEventListener('mousemove', function(){
+                    if(drag){
+                        var tamanho = document.getElementById('inputTamanho').value;
+                        if(tamanho>50){tamanho =50; document.getElementById('inputTamanho').value=50}
+                        if(tamanho<10){tamanho=10; document.getElementById('inputTamanho').value=10}
+                        var color = document.getElementById('inputColor').value;
+                        x = mouse.x
+                        y = mouse.y
+                        socket.emit('desenharDesafio', {x, y, color, tamanho});
+                    }
+                })
+            }
+        })
+        boxDraw.addEventListener('mouseup', () => {
+            drag = false
+        });
+
+        //desenho com click
+        /*boxDraw.addEventListener('click', function(){
             if(escolhido){
                 if(clique){
                     clique=false
@@ -176,7 +247,7 @@
                     }
                 }
             }
-        })
+        })*/
 
 
         var palavra;
@@ -186,7 +257,6 @@
             desenhista = dados.idDoDesenhista
             console.log("A palavra da vez é: "+ palavra);
             console.log("O desenhista da vez é: "+ desenhista);
-            
             
             if(dados.primeiraPartida){
                 setTimeout(() => {
@@ -208,6 +278,21 @@
                 }
                 console.log("escolhido: "+ escolhido)
                 recarregarHeader(escolhido, palavra);
+            }
+        })
+
+
+        socket.on('atualizaCard', oId => {
+            var inputIdCards = document.getElementsByClassName('socketId');
+            var pontuacaoCards = document.getElementsByClassName('pontuacao');
+
+            console.log('oId: '+ oId.idDaTentativa);
+            console.log(inputIdCards[1].value);
+
+            for(var x=0; x<inputIdCards.length; x++){
+                if(inputIdCards[x].value == oId.idDaTentativa){
+                    pontuacaoCards[x].innerHTML= `<p>${oId.pontuacao}<p>`
+                }
             }
         })
 
