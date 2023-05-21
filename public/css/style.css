@@ -1,3 +1,7 @@
+*{
+    margin: 0;
+    padding: 0;
+}
 .none{
     display: none;
 }
@@ -5,6 +9,12 @@
     width: 800px;
     height: 600px;
     border: 2px solid #000;
+    /*retira selecao de texto*/
+    -youbkit-touch-callout: none; /* iOS Safari */
+    -youbkit-user-select: none;   /* Chrome 6.0+, Safari 3.1+, Edge e Opera 15+ */
+    -moz-user-select: none;    /* Raposa de fogo */
+    -ms-user-select: none;        /* IE 10+ e Edge */
+    user-select: none;            /* Versão sem prefixo, atualmente suportado pelo Chrome e Opera */
 }
 #chat{
     background-color: aquamarine;
@@ -28,3 +38,85 @@
 .card p, .card h3{
     text-align: center;
 }
+
+/*Header*/
+header, .direita, .containerFerramentas{
+    display:flex;
+    flex-direction: row;
+}
+header{
+    background-color: rgb(76, 76, 95);
+    color: #fff;
+}
+.esquerda{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 25%;
+}
+.direita{
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+.ferramentas{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
+    width: 50%;
+    background-color: red;
+}
+.containerFerramentas{
+    width: 100%;
+    align-items: center;
+    justify-content: space-around;
+}
+.containerFerramentas div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.ferramentas #borracha{
+    width: 40px;
+}
+
+
+/*Imputs do header*/
+.inputInvisivel{
+    box-shadow: 0 0 0 0;
+    border: 0 none;
+    background-color: transparent;
+    color: #fff;
+    cursor: auto;
+}
+.inputInvisivel:focus{
+    box-shadow: 0 0 0 0;
+    border: 0 none;
+    outline: 0;
+}
+#inputColor{
+    height: 35px;
+      border: none;
+      padding: 0;
+      background-color: #fff;
+      cursor: pointer;
+}
+#inputColor:focus{
+    box-shadow: 0 0 0 0;
+    border: 0 none;
+    outline: 0;
+}
+#inputTamanho{
+    font-size: 20px;
+}
+
+#inputTamanho::-webkit-inner-spin-button { 
+    width: 30px;
+    height: 50px;
+    margin: 17px;
+    padding: 5px;
+    transform: rotate(90deg);
+    filter: sepia(100%) hue-rotate(90deg);
+    cursor: pointer;
+  }
