@@ -5,7 +5,7 @@
     "json-server": "^0.17.3",
     "socket.io": "^4.6.1"
   },
-  "name": "nova-pasta",
+  "name": "Gartic-jogo",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
