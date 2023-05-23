@@ -1,0 +1,238 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+.none{
+    display: none;
+}
+#boxDraw{
+    width: 800px;
+    height: 600px;
+    border: 2px solid #000;
+    background-color: #fff;
+    /*retira selecao de texto*/
+    -youbkit-touch-callout: none; /* iOS Safari */
+    -youbkit-user-select: none;   /* Chrome 6.0+, Safari 3.1+, Edge e Opera 15+ */
+    -moz-user-select: none;    /* Raposa de fogo */
+    -ms-user-select: none;        /* IE 10+ e Edge */
+    user-select: none;            /* Versão sem prefixo, atualmente suportado pelo Chrome e Opera */
+}
+
+
+.card{
+    border: 2px solid #000;
+    border-radius: 10px;
+    background-color: #f9bf76;
+    width: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.card img{
+    width: 100px;
+    border-radius: 10px;
+    margin-top: 5px;
+}
+.card p, .card h3{
+    text-align: center;
+}
+
+/*Header*/
+.headerChat{
+    height: 10vh;
+    max-height: 10vh;
+}
+.headerChat, .direita, .containerFerramentas{
+    display:flex;
+    flex-direction: row;
+}
+.headerChat{
+    background-color: #615375;
+    color: #fff;
+}
+.esquerda{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 25%;
+}
+.direita{
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+.ferramentas{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
+    width: 50%;
+    background-color: #e5625c;
+}
+.containerFerramentas{
+    width: 100%;
+    align-items: center;
+    justify-content: space-around;
+}
+.containerFerramentas div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.ferramentas #borracha{
+    width: 40px;
+}
+
+
+/*Imputs do header*/
+.inputInvisivel{
+    box-shadow: 0 0 0 0;
+    border: 0 none;
+    background-color: transparent;
+    color: #fff;
+    cursor: auto;
+}
+.inputInvisivel:focus{
+    box-shadow: 0 0 0 0;
+    border: 0 none;
+    outline: 0;
+}
+#inputColor{
+    height: 35px;
+      border: none;
+      padding: 0;
+      background-color: #fff;
+      cursor: pointer;
+}
+#inputColor:focus{
+    box-shadow: 0 0 0 0;
+    border: 0 none;
+    outline: 0;
+}
+#inputTamanho{
+    font-size: 20px;
+}
+
+#inputTamanho::-webkit-inner-spin-button { 
+    width: 30px;
+    height: 50px;
+    margin: 17px;
+    padding: 5px;
+    transform: rotate(90deg);
+    filter: sepia(100%) hue-rotate(90deg);
+    cursor: pointer;
+}
+
+
+/*MAIN CHAT*/
+.mainChat{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    /*gap:5%;*/
+    background-color: aliceblue;
+    /*background-image: url('../imagens/fundo3.jpg');
+    background-repeat: repeat;
+    background-size: 100px;*/
+}
+.mainChat .direita, .mainChat .esquerda{
+    height: 90vh;
+    width: 25%;
+    max-height: 90vh;
+    min-width: 100px;
+}
+
+.mainChat .direita .areaEscreve{
+    background-color: #8eb2c5;
+    display: flex;
+    flex-direction: row;
+    padding: 3px;
+    border-radius: 20px 20px 20px 20px;
+}
+
+.mainChat .direita{
+    background-color: #f9bf76;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.balaoMensagem{
+    max-width: 300px;
+    background-color: #8eb2c5;
+    border-radius: 20px;
+    padding: 10px;
+    font-size: 1.3em;
+    word-break: break-word;
+    margin-bottom: 5px;
+}
+.mainChat .direita .containerAreaEscrever{
+    background-color: #615375;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 8vh;
+    min-height: 50px;
+}
+.mainChat .direita #mensagens{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    overflow:auto; 
+}
+.mainChat .direita #mensagens div{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+.mainChat .direita .areaEscreve #mensagem{
+    border: none;
+    border-radius: 20px 0px 0px 20px;
+    font-size: 1.5em;
+    padding: 1%;
+    width: 200px;
+}
+.mainChat .direita .areaEscreve #mensagem:focus{
+    box-shadow: 0 0 0 0;
+    border: 0 none;
+    outline: 0;
+}
+.mainChat .direita .areaEscreve button{
+    border: none;
+    border-radius: 0px 20px 20px 0px;
+    width: 50px;
+}
+
+
+.mainChat .esquerda{
+    background-color: #8eb2c5;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+#areaConectados{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+#areaConectados div{
+    margin: 5px;
+}
+
+#chat{
+   
+}
+
+
+
+
+/*
+palheta:
+
+vermelho #d1313d
+pessego #e5625c
+amarelo #f9bf76
+azul #8eb2c5
+roxo #615375
+*/

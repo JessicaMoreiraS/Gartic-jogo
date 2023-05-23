@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+
+    <title>Gartic</title>
+</head>
+<body onload="carregaUser()">
+
+    <header class="headerChat">
+        <div class="esquerdaHeader">
+            <h2>Hora do jogo!</h2>
+            <input type="text" id="nome" placeholder="Seu nome de usuário" readonly class="inputInvisivel">
+        </div>
+        <div id="EscolhidoFerramentas" class="direita">
+            <div>
+                <h3>Sua vez!</h3>
+                <input type="text" id="headerPalavra" readonly class="inputInvisivel">
+            </div>
+            <div class="ferramentas">
+                <p>Ferramentas</p>
+                <div class="containerFerramentas">
+                    <div>
+                        <label for="inputColor">Cor</label>
+                        <input type="color" id="inputColor">
+                    </div>
+                    <div>
+                        <label for="borracha">Borracha</label>
+                        <input type="image" src="imagens/borracha.png" onclick="borracha()" id="borracha">
+                    </div>
+                    <div>
+                        <label for="inputTamanho">Tamanho</label>
+                        <input type="number" id='inputTamanho' min="10" max="50" value="25">
+                    </div>
+                </div>
+            </div>
+            <input type="text" id="meuId" readonly class="none">
+        </div>
+    </header>
+
+    <main class="mainChat">
+        <div class="esquerda">
+            <div id="areaConectados"></div>
+        </div>
+
+        <div class="meio">
+            <div id="boxDraw"></div>
+            <hr>
+        </div>
+
+        <div id="chat" class="direita">
+            <div id="mensagens"></div>
+            
+            <div class="containerAreaEscrever">
+                <form action="" class="areaEscreve">
+                    <input type="text" id="mensagem" placeholder="Resposta">
+    
+                    <button>
+                        <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="30.000000pt" height="30.000000pt" viewBox="0 0 30.000000 30.000000" preserveAspectRatio="xMidYMid meet" class="SendSVG">
+                            <g transform="translate(0.000000,30.000000) scale(0.100000,-0.100000)" fill="#615375" stroke="none">
+                                <path d="M44 256 c-3 -8 -4 -29 -2 -48 3 -31 5 -33 56 -42 28 -5 52 -13 52 -16 0 -3 -24 -11 -52 -16 -52 -9 -53 -9 -56 -48 -2 -21 1 -43 6 -48 10 -10 232 97 232 112 0 7 -211 120 -224 120 -4 0 -9 -6 -12 -14z"></path>
+                            </g>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="js/script.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        var escolhido = false
+        //CHAT
+        const socket = io();
+        const nomeInput = document.getElementById('nome');
+        const mensagemInput = document.getElementById("mensagem");
+        const mensagens = document.getElementById("mensagens");
+
+        document.querySelector("form").addEventListener('submit', evento =>{
+            event.preventDefault()
+            const nome = nomeInput.value;
+            const mensagem = mensagemInput.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+            const id = document.getElementById("meuId").value
+
+            id.trim() && nome.trim() && mensagem.trim() && socket.emit('chat message', {nome,mensagem,id});
+            mensagemInput.value = '';
+
+            palavra = localStorage.getItem('palavra');
+            console.log('palavra: '+ palavra)
+        })
+
+        var contador = 0
+        socket.on('chat message', dados => {
+            const balaoMensagem = document.createElement('div');
+            balaoMensagem.classList.add("balaoMensagem")
+            balaoMensagem.textContent = `${dados.nome}: ${dados.mensagem}`;
+            mensagens.appendChild(balaoMensagem);
+
+
+            const idDaTentativa = dados.id
+            palavra = localStorage.getItem('palavra');
+            if(dados.mensagem == palavra.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")){ //a palavra esta indefinida para quem nao esta desenhando
+                const mensagemAcerto = document.createElement('div');
+                mensagemAcerto.innerHTML = `<p>${dados.nome} do id ${dados.id} Acertou!</p>
+                                            <p>Resposta: ${palavra}</p>`
+                mensagens.appendChild(mensagemAcerto);
+
+                console.log('input: '+ document.getElementById('meuId').value)
+                if(idDaTentativa == document.getElementById('meuId').value){
+                    socket.emit('start', {idDaTentativa}); ///////////
+                }
+                socket.emit('atualizaCard', {idDaTentativa});
+            }
+        })
+
+
+
+        //Onload / entrada
+        var meuId
+        function carregaUser(){
+            var nome = localStorage.getItem('username');
+            document.getElementById('nome').value = nome;
+            var pontuacao = 0;
+            nome.trim() && socket.emit('entrou', {nome, pontuacao});
+        }
+        
+
+        socket.on('entrou', infoUser => {
+            const card = document.createElement('div')
+            card.classList.add("cardConexao");
+            card.innerHTML=`<div class="card">${fotoAleatoria()}
+                                <div class="cardNome">
+                                    <h3>${infoUser.infoUser.nome}</h3>
+                                    <p>Pontuação:</p>
+                                    <p class="pontuacao">${infoUser.infoUser.pontuacao}</p>
+                                    <input class="socketId none" value=${infoUser.id}>
+                                </div>
+                            </div>`;
+            document.getElementById('areaConectados').appendChild(card)
+
+            if(infoUser.aPalavra != undefined && infoUser.aPalavra != null){
+                localStorage.setItem('palavra', infoUser.aPalavra)
+            }
+
+            console.log(infoUser.infoUser.nome);
+
+            meuId = socket.id 
+            if(document. getElementById("meuId").value == ""){
+                document. getElementById("meuId").value = meuId
+                //carregar cards dos usuarios anteriores
+                for(var a = 0; a<infoUser.conectados.length-1; a++){
+                    const cardAnteriores = document.createElement('div')
+                    cardAnteriores.classList.add("cardConexao");
+                    cardAnteriores.innerHTML=`<div class="card">${fotoAleatoria()}
+                                        <div class="cardNome">
+                                            <h3>${infoUser.conectados[a][1]}</h3>
+                                            <p>Pontuação:</p>
+                                            <p class="pontuacao">${infoUser.conectados[a][2]}</p>
+                                            <input class="socketId none" value=${infoUser.conectados[a][0]}>
+                                        </div>
+                                    </div>`;
+                    document.getElementById('areaConectados').appendChild(cardAnteriores)
+
+                    console.log("escolhido: "+ escolhido)
+                    recarregarHeader(escolhido, palavra);
+                }
+            }
+        })
+
+
+        //GARTIC
+        
+       //desenho
+        boxDraw = document.getElementById('boxDraw')
+        var mouse = {};
+        boxDraw.addEventListener('mousemove', function(e){
+            mouse.x = e.clientX - boxDraw.offsetLeft;
+            mouse.y = e.clientY - boxDraw.offsetTop;
+        })
+        
+        var clique = false
+        var para = false
+
+        socket.on('desenharDesafio', posicao => {
+            var bolinha = document.createElement('div')
+            bolinha.style = `margin: ${posicao.y}px 0px 0px ${posicao.x}px;
+                                    width: ${posicao.tamanho}px; 
+                                    height:${posicao.tamanho}px;
+                                    border-radius: 100px;
+                                    border-style: none;
+                                    background-color: ${posicao.color};
+                                    position: absolute;`;
+            /*var outraBolinha = document.createElement('img')
+            outraBolinha.src = "imagens/bolinhaPreta.png"
+            outraBolinha.style = `margin: ${posicao.y}px 0px 0px ${posicao.x}px;
+                                    width:10px; 
+                                    position: absolute`*/
+                    //`<img src="http://127.0.0.1:5500/public/gartic/imagens/bolinhaPreta.png" style= "width:10px; margin: ${mouse.y}px 0px 0px ${mouse.x}px;">`
+                    boxDraw.appendChild(bolinha)
+                    //return;
+        })
+
+        let drag = false;
+        boxDraw.addEventListener('mousedown', function(){
+            
+            drag = true;
+            //console.log(escolhido)
+            if(escolhido && drag){
+                boxDraw.addEventListener('mousemove', function(){
+                    if(drag && escolhido){
+                        var tamanho = document.getElementById('inputTamanho').value;
+                        if(tamanho>50){tamanho =50; document.getElementById('inputTamanho').value=50}
+                        if(tamanho<10){tamanho=10; document.getElementById('inputTamanho').value=10}
+                        var color = document.getElementById('inputColor').value;
+                        x = mouse.x
+                        y = mouse.y
+                        socket.emit('desenharDesafio', {x, y, color, tamanho});
+                    }
+                })
+            }
+        })
+        boxDraw.addEventListener('mouseup', () => {
+            drag = false
+        });
+
+        //desenho com click
+        /*boxDraw.addEventListener('click', function(){
+            if(escolhido){
+                if(clique){
+                    clique=false
+                }else{
+                    clique = true
+                }
+                para = false
+    
+                if(clique && !para){
+                    boxDraw.addEventListener('mousemove', function(){
+                        if(clique && !para){
+    
+                        x = mouse.x
+                        y = mouse.y
+                        socket.emit('desenharDesafio', {x, y});
+                        }
+                    })
+                }else{
+                    if(!clique){
+                        para = true
+                    }
+                }
+            }
+        })*/
+
+
+        var palavra;
+        socket.on('start', dados => {
+            localStorage.setItem('palavra', dados.aPalavra)
+            palavra = localStorage.getItem('palavra');
+            desenhista = dados.idDoDesenhista
+            console.log("A palavra da vez é: "+ palavra);
+            console.log("O desenhista da vez é: "+ desenhista);
+            
+            if(dados.primeiraPartida){
+                setTimeout(() => {
+                    console.log("Meu id é: "+ document.getElementById('meuId').value);
+                    if(document.getElementById('meuId').value == dados.idDoDesenhista){
+                        escolhido = true; 
+                    }else{
+                        escolhido = false
+                    }
+                    console.log("escolhido: "+ escolhido)
+                    recarregarHeader(escolhido, palavra);
+                }, 800);
+            }else{
+                console.log("Meu id é: "+ document.getElementById('meuId').value);
+                if(document.getElementById('meuId').value == dados.idDoDesenhista){
+                    escolhido = true; 
+                }else{
+                    escolhido = false
+                }
+                console.log("escolhido: "+ escolhido)
+                recarregarHeader(escolhido, palavra);
+            }
+        })
+
+
+        socket.on('atualizaCard', oId => {
+            var inputIdCards = document.getElementsByClassName('socketId');
+            var pontuacaoCards = document.getElementsByClassName('pontuacao');
+
+            console.log('oId: '+ oId.idDaTentativa);
+            console.log(inputIdCards[1].value);
+
+            for(var x=0; x<inputIdCards.length; x++){
+                if(inputIdCards[x].value == oId.idDaTentativa){
+                    pontuacaoCards[x].innerHTML= `<p>${oId.pontuacao}<p>`
+                }
+            }
+        })
+
+    </script>
+</body>
+</html>
