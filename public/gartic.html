@@ -206,7 +206,7 @@
             //console.log(escolhido)
             if(escolhido && drag){
                 boxDraw.addEventListener('mousemove', function(){
-                    if(drag){
+                    if(drag && escolhido){
                         var tamanho = document.getElementById('inputTamanho').value;
                         if(tamanho>50){tamanho =50; document.getElementById('inputTamanho').value=50}
                         if(tamanho<10){tamanho=10; document.getElementById('inputTamanho').value=10}
