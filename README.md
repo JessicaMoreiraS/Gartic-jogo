@@ -1,4 +1,4 @@
-# Chat-em-servidor-local
+# Gartic-em-servidor-local
 criar jogo estilo Gartic em servidor, para melhor funcionaento baixe o arquivo e user o comando 'node server.js' no CMD aberto no diretorio, para acessar como servidor local
 <!--
 criar conta:
